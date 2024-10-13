@@ -1,10 +1,13 @@
 """Dataset readers and writers."""
 
+import logging
 from pathlib import Path
 
 import pandas as pd
 
 from .base import BaseReader, BaseWriter
+
+logger = logging.getLogger(__name__)
 
 
 class CSVReader(BaseReader):
@@ -19,6 +22,7 @@ class CSVReader(BaseReader):
         Returns:
             pd.DataFrame: Data read from CSV file.
         """
+        logger.info(f"Reading data from {path}")
         data = pd.read_csv(path)
 
         if self.limit is not None:
@@ -37,4 +41,5 @@ class CSVWriter(BaseWriter):
             path (Path): Path to CSV file.
             data (pd.DataFrame): Data to write.
         """
+        logger.info(f"Writing data to {path}")
         data.to_csv(path)
