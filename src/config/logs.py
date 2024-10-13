@@ -34,5 +34,5 @@ LOGGING_CONFIG = {
 
 
 def configure_logging() -> None:
-    """Configure custom logging config."""
+    """Configure custom logging."""
     logging.config.dictConfig(LOGGING_CONFIG)
