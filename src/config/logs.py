@@ -3,7 +3,9 @@
 import logging
 import logging.config
 
-from .settings import settings
+from .settings import get_settings
+
+settings = get_settings()
 
 LOGGING_CONFIG = {
     "version": 1,

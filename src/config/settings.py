@@ -1,5 +1,6 @@
 """Global application settings."""
 
+from functools import lru_cache
 from pathlib import Path
 
 from pydantic import Field, field_validator
@@ -89,4 +90,11 @@ class Settings(BaseSettings):
         return Path.joinpath(directory, file)
 
 
-settings = Settings()
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    """Get application settings.
+
+    Returns:
+        Settings: Application settings.
+    """
+    return Settings()
