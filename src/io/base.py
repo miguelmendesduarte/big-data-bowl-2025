@@ -25,11 +25,14 @@ class BaseReader(ABC):
             path (Path): Path to file.
 
         Raises:
+            FileNotFoundError: If file does not exist.
             NotImplementedError: To be implemented in child class.
 
         Returns:
             Any: Data read from file.
         """
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {path}")
         raise NotImplementedError()
 
 
@@ -45,6 +48,7 @@ class BaseWriter(ABC):
             data (Any): Data to write.
 
         Raises:
+            FileNotFoundError: If file does not exist.
             NotImplementedError: To be implemented in child class.
         """
         raise NotImplementedError()
