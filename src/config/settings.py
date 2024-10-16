@@ -1,81 +1,106 @@
 """Global application settings."""
 
+from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field, field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings
 
-LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-
 BASE_DIR: Path = Path(__file__).parent.parent.parent.absolute()
+
+TEAMS: set[str] = {
+    "ARI",
+    "ATL",
+    "BAL",
+    "BUF",
+    "CAR",
+    "CHI",
+    "CIN",
+    "CLE",
+    "DAL",
+    "DEN",
+    "DET",
+    "GB",
+    "HOU",
+    "IND",
+    "JAX",
+    "KC",
+    "LA",
+    "LAC",
+    "LV",
+    "MIA",
+    "MIN",
+    "NE",
+    "NO",
+    "NYG",
+    "NYJ",
+    "PHI",
+    "PIT",
+    "SEA",
+    "SF",
+    "TB",
+    "TEN",
+    "WAS",
+}
+
+# Filenames
+GAMES_FILENAME = "games.csv"
+PLAYERS_FILENAME = "players.csv"
+PLAYER_PLAYS_FILENAME = "player_plays.csv"
+PLAYS_FILENAME = "plays.csv"
+TRACKING_FILENAME_TEMPLATE = "tracking_week_{week}.csv"
+LOGO_FILENAME_TEMPLATE = "{team}.png"
+
+
+class LogLevel(StrEnum):
+    """Logging levels."""
+
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    CRITICAL = "CRITICAL"
 
 
 class Settings(BaseSettings):
     """Application settings."""
 
     # Directories
-    DATA_DIR: Path = Path.joinpath(BASE_DIR, "data")
-    RAW_DIR: Path = Path.joinpath(DATA_DIR, "raw")
-    PROCESSED_DIR: Path = Path.joinpath(DATA_DIR, "processed")
+    DATA_DIR: Path = BASE_DIR / "data"
+    RAW_DIR: Path = DATA_DIR / "raw"
+    PROCESSED_DIR: Path = DATA_DIR / "processed"
+    ASSETS_DIR: Path = BASE_DIR / "assets"
+    LOGOS_DIR: Path = ASSETS_DIR / "logos"
 
     # Files
     GAMES_FILE: Path = Field(
-        default=Path("games.csv"), description="Path to games file."
+        default=Path(GAMES_FILENAME), description="Path to games file."
     )
     PLAYERS_FILE: Path = Field(
-        default=Path("players.csv"), description="Path to players file."
+        default=Path(PLAYERS_FILENAME), description="Path to players file."
     )
     PLAYER_PLAYS_FILE: Path = Field(
-        default=Path("player_plays.csv"), description="Path to player_play file."
+        default=Path(PLAYER_PLAYS_FILENAME), description="Path to player plays file."
     )
     PLAYS_FILE: Path = Field(
-        default=Path("plays.csv"), description="Path to plays file."
+        default=Path(PLAYS_FILENAME), description="Path to plays file."
     )
     TRACKING_FILES: str = Field(
-        default="tracking_week_{week}.csv", description="Template for tracking files."
+        default=TRACKING_FILENAME_TEMPLATE, description="Template for tracking files."
+    )
+    LOGO_FILES: str = Field(
+        default=LOGO_FILENAME_TEMPLATE, description="Template for team logo."
     )
 
     # Logging
-    LOG_LEVEL: str = Field(default="DEBUG")
+    LOG_LEVEL: LogLevel = Field(default=LogLevel.DEBUG, description="Log level to use.")
     LOG_FORMAT: str = Field(
         default="{asctime}|{filename:>15s}:{lineno:03d}|{levelname:^7s} - {message}"
     )
 
-    @field_validator("LOG_LEVEL")
-    def validate_log_level(cls, log_level: str) -> str:
-        """Validate log level.
-
-        Args:
-            log_level (str): Log level.
-
-        Returns:
-            str: Validated log level.
-        """
-        if log_level not in LOG_LEVELS:
-            raise ValueError(f"Invalid log level: {log_level}")
-
-        return log_level
-
-    def tracking_file_path(self, week: int) -> Path:
-        """Get tracking file path for given week.
-
-        Args:
-            week (int): Week number.
-
-        Raises:
-            ValueError: Week must be between 1 and 9.
-
-        Returns:
-            Path: Path to tracking file.
-        """
-        if not 1 <= week <= 9:
-            raise ValueError("Week must be between 1 and 9.")
-
-        return Path(self.TRACKING_FILES.format(week=week))
-
-    def get_file_path(self, file: Path, processed: bool = False) -> Path:
-        """Get path to file.
+    def get_data_file_path(self, file: Path, processed: bool = False) -> Path:
+        """Get path to file in data directory.
 
         Args:
             file (Path): Path to file.
@@ -87,7 +112,44 @@ class Settings(BaseSettings):
         """
         directory = self.PROCESSED_DIR if processed else self.RAW_DIR
 
-        return Path.joinpath(directory, file)
+        return directory / file
+
+    def get_tracking_file_path(self, week: int, processed: bool = False) -> Path:
+        """Get path to tracking file.
+
+        Args:
+            week (int): Week number.
+            processed (bool, optional): Whether to use processed directory.
+                Defaults to False - use raw directory.
+
+        Raises:
+            ValueError: Week must be between 1 and 9.
+
+        Returns:
+            Path: Path to tracking file.
+        """
+        if not 1 <= week <= 9:
+            raise ValueError("Week must be between 1 and 9.")
+
+        tracking_file_path: Path = Path(self.TRACKING_FILES.format(week=week))
+
+        return self.get_data_file_path(tracking_file_path, processed=processed)
+
+    def get_logo_file_path(self, team: str) -> Path:
+        """Get path to team logo file.
+
+        Args:
+            team (str): Team abbreviation.
+
+        Returns:
+            Path: Path to team logo.
+        """
+        team = team.upper()
+        if team not in TEAMS:
+            raise ValueError(f"Invalid team abbreviation: '{team}'")
+        team_logo_path: Path = Path(self.LOGO_FILES.format(team=team))
+
+        return self.LOGOS_DIR / team_logo_path
 
 
 @lru_cache(maxsize=1)
