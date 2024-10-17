@@ -7,42 +7,9 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
-BASE_DIR: Path = Path(__file__).parent.parent.parent.absolute()
+from ..core.teams import TEAMS
 
-TEAMS: set[str] = {
-    "ARI",
-    "ATL",
-    "BAL",
-    "BUF",
-    "CAR",
-    "CHI",
-    "CIN",
-    "CLE",
-    "DAL",
-    "DEN",
-    "DET",
-    "GB",
-    "HOU",
-    "IND",
-    "JAX",
-    "KC",
-    "LA",
-    "LAC",
-    "LV",
-    "MIA",
-    "MIN",
-    "NE",
-    "NO",
-    "NYG",
-    "NYJ",
-    "PHI",
-    "PIT",
-    "SEA",
-    "SF",
-    "TB",
-    "TEN",
-    "WAS",
-}
+BASE_DIR: Path = Path(__file__).parent.parent.parent.absolute()
 
 # Filenames
 GAMES_FILENAME = "games.csv"
