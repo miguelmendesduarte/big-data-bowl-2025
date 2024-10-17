@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     )
 
     # Logging
-    LOG_LEVEL: LogLevel = Field(default=LogLevel.DEBUG, description="Log level to use.")
+    LOG_LEVEL: LogLevel = Field(default=LogLevel.INFO, description="Log level to use.")
     LOG_FORMAT: str = Field(
         default="{asctime}|{filename:>15s}:{lineno:03d}|{levelname:^7s} - {message}"
     )
