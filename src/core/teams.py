@@ -6,6 +6,7 @@ from dataclasses import dataclass
 @dataclass
 class Team:
     """Team data class."""
+
     abbreviation: str
     location: str
     name: str
