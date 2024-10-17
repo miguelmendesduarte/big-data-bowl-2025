@@ -1,6 +1,9 @@
 """Teams module."""
 
 from dataclasses import dataclass
+from pathlib import Path
+
+from ..config.settings import get_settings
 
 
 @dataclass
@@ -21,6 +24,18 @@ class Team:
             str: Team name.
         """
         return f"{self.location} {self.name}"
+
+    def get_logo_file_path(self) -> Path:
+        """Get path to team logo file.
+
+        Returns:
+            Path: Path to team logo file.
+        """
+        settings = get_settings()
+
+        team_logo_path: Path = Path(settings.LOGO_FILES.format(team=self.abbreviation))
+
+        return settings.LOGOS_DIR / team_logo_path
 
 
 TEAMS = {

@@ -7,8 +7,6 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
-from ..core.teams import TEAMS
-
 BASE_DIR: Path = Path(__file__).parent.parent.parent.absolute()
 
 # Filenames
@@ -101,22 +99,6 @@ class Settings(BaseSettings):
         tracking_file_path: Path = Path(self.TRACKING_FILES.format(week=week))
 
         return self.get_data_file_path(tracking_file_path, processed=processed)
-
-    def get_logo_file_path(self, team: str) -> Path:
-        """Get path to team logo file.
-
-        Args:
-            team (str): Team abbreviation.
-
-        Returns:
-            Path: Path to team logo.
-        """
-        team = team.upper()
-        if team not in TEAMS:
-            raise ValueError(f"Invalid team abbreviation: '{team}'")
-        team_logo_path: Path = Path(self.LOGO_FILES.format(team=team))
-
-        return self.LOGOS_DIR / team_logo_path
 
 
 @lru_cache(maxsize=1)
