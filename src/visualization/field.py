@@ -245,11 +245,14 @@ def _draw_team_logo(ax: Axes, home_team: Team) -> None:
     )
 
 
-def create_football_field(home_team: Team) -> None:
-    """Create football field.
+def create_football_field(home_team: Team) -> Axes:
+    """Create the football field.
 
     Args:
         home_team (Team): Home team.
+
+    Returns:
+        Axes: Axes to draw on.
     """
     _, ax = plt.subplots(figsize=FIGURE_SIZE)
 
@@ -267,4 +270,5 @@ def create_football_field(home_team: Team) -> None:
     ax.set_ylim(0, FIELD_WIDTH)
     ax.axis("off")
     plt.tight_layout()
-    plt.show()
+    
+    return ax
