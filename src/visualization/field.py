@@ -8,6 +8,7 @@ import matplotlib.patheffects as path_effects
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
 from ..config.settings import get_settings
 from ..core.teams import Team
@@ -251,17 +252,17 @@ def _draw_team_logo(ax: Axes, home_team: Team) -> None:
     )
 
 
-def create_football_field(home_team: Team) -> Axes:
-    """Create the football field.
+def create_football_field(home_team: Team) -> tuple[Figure, Axes]:
+    """Create the football field for visualization.
 
     Args:
         home_team (Team): Home team.
 
     Returns:
-        Axes: Axes to draw on.
+        tuple[Figure, Axes]: Figure and axes.
     """
     logger.info("Creating football field")
-    _, ax = plt.subplots(figsize=FIGURE_SIZE)
+    fig, ax = plt.subplots(figsize=FIGURE_SIZE)
 
     _draw_field(ax)
     _draw_yard_numbers(ax)
@@ -284,4 +285,4 @@ def create_football_field(home_team: Team) -> Axes:
     ax.axis("off")
     plt.tight_layout()
 
-    return ax
+    return fig, ax
