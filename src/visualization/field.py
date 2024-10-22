@@ -1,5 +1,7 @@
 """Module for creating the football field for visualization."""
 
+import logging
+
 import matplotlib.image as mpl_image
 import matplotlib.patches as patches
 import matplotlib.patheffects as path_effects
@@ -17,7 +19,11 @@ LINE_COLOR = "#FFFFFF"
 
 FIGURE_SIZE: tuple[int, int] = (12, 6)
 
+logger = logging.getLogger(__name__)
+
 settings = get_settings()
+
+# TODO: Add logging
 
 
 def _draw_field(ax: Axes) -> None:
@@ -254,6 +260,7 @@ def create_football_field(home_team: Team) -> Axes:
     Returns:
         Axes: Axes to draw on.
     """
+    logger.info("Creating football field")
     _, ax = plt.subplots(figsize=FIGURE_SIZE)
 
     _draw_field(ax)
@@ -264,11 +271,17 @@ def create_football_field(home_team: Team) -> Axes:
 
     # Add noise to the field for realism
     noise = np.random.rand(200, 200)
-    ax.imshow(noise, extent=(0, FIELD_LENGTH, 0, FIELD_WIDTH), cmap="Greys", alpha=0.05, zorder=1)
+    ax.imshow(
+        noise,
+        extent=(0, FIELD_LENGTH, 0, FIELD_WIDTH),
+        cmap="Greys",
+        alpha=0.05,
+        zorder=1,
+    )
 
     ax.set_xlim(0, FIELD_LENGTH)
     ax.set_ylim(0, FIELD_WIDTH)
     ax.axis("off")
     plt.tight_layout()
-    
+
     return ax
