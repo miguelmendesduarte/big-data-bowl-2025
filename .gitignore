@@ -162,4 +162,5 @@ cython_debug/
 #.idea/
 
 # Other
-data/*.csv
+data/*/*.csv
+src/test.py
