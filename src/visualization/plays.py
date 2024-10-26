@@ -10,7 +10,7 @@ from matplotlib.artist import Artist
 from matplotlib.patches import Ellipse
 
 from ..core.teams import TEAMS
-from .field import FIELD_WIDTH, create_football_field
+from .field import FIELD_LENGTH, FIELD_WIDTH, create_football_field
 
 BALL_COLOR = "#8B5B29"
 LOS_COLOR = "#0000FF"
@@ -64,8 +64,11 @@ def animate_play(
         (plays_data.gameId == game_id) & (plays_data.playId == play_id)
     ]
 
-    line_of_scrimmage = play_data.yardlineNumber.iloc[0]
-    first_down = play_data.yardlineNumber.iloc[0] + play_data.yardsToGo.iloc[0]
+    if tracking_data.playDirection.iloc[0] == "left":
+        line_of_scrimmage = FIELD_LENGTH - 10 - play_data.absoluteYardlineNumber.iloc[0]
+    else:
+        line_of_scrimmage = play_data.absoluteYardlineNumber.iloc[0] - 10
+    first_down = line_of_scrimmage + play_data.yardsToGo.iloc[0]
     down = play_data.down.iloc[0]
     play_description = play_data.playDescription.iloc[0]
 
