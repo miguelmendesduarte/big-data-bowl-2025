@@ -227,6 +227,7 @@ def _draw_endzone(
         verticalalignment="center",
         rotation=rotation,
         path_effects=[path_effects.withStroke(linewidth=2, foreground=secondary_color)],
+        zorder=1,
     ).set_alpha(0.5)
 
 
