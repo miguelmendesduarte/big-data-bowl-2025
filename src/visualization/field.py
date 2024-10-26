@@ -59,6 +59,7 @@ def _add_yard_number(ax: Axes, line: int) -> None:
         fontsize=16,
         color=LINE_COLOR,
         horizontalalignment="center",
+        zorder=1
     ).set_alpha(0.8)
     ax.text(
         line,
@@ -68,6 +69,7 @@ def _add_yard_number(ax: Axes, line: int) -> None:
         color=LINE_COLOR,
         horizontalalignment="center",
         rotation=180,
+        zorder=1
     ).set_alpha(0.8)
 
 
