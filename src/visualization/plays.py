@@ -82,17 +82,18 @@ def animate_play(
         linewidth=1.2,
         alpha=0.8,
     )
-    # Draw first down marker
-    ax.plot(
-        (
-            first_down + 10,
-            first_down + 10,
-        ),
-        (0, FIELD_WIDTH),
-        color=FIRST_DOWN_COLOR,
-        linewidth=1.2,
-        alpha=0.8,
-    )
+    # Draw first down marker (if not goal to go)
+    if first_down < 110:
+        ax.plot(
+            (
+                first_down + 10,
+                first_down + 10,
+            ),
+            (0, FIELD_WIDTH),
+            color=FIRST_DOWN_COLOR,
+            linewidth=1.2,
+            alpha=0.8,
+        )
 
     player_scatter: list[Artist] = []
     player_texts: list[Artist] = []
