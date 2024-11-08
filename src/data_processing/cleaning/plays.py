@@ -82,3 +82,26 @@ def remove_designed_rollouts_and_runs(plays_data: pd.DataFrame) -> pd.DataFrame:
     )
 
     return cleaned_data
+
+
+def clean_plays_data(plays_data: pd.DataFrame) -> pd.DataFrame:
+    """Clean plays data.
+
+    Applies the following cleaning steps:
+    - Remove non-passing plays
+    - Remove plays with penalty
+    - Remove designed rollouts and runs
+    - Remove wildcat offense formation plays
+
+    Args:
+        plays_data (pd.DataFrame): Dataframe with plays.
+
+    Returns:
+        pd.DataFrame: Dataframe with cleaned plays.
+    """
+    return (
+        plays_data.pipe(remove_non_passing_plays)
+        .pipe(remove_plays_with_penalty)
+        .pipe(remove_designed_rollouts_and_runs)
+        .pipe(remove_wildcat_formation_plays)
+    )
