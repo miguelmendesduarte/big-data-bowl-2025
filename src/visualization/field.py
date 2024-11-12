@@ -24,8 +24,6 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
-# TODO: Add logging
-
 
 def _draw_field(ax: Axes) -> None:
     """Draw the main football field rectangle.
@@ -59,6 +57,7 @@ def _add_yard_number(ax: Axes, line: int) -> None:
         fontsize=16,
         color=LINE_COLOR,
         horizontalalignment="center",
+        zorder=1,
     ).set_alpha(0.8)
     ax.text(
         line,
@@ -68,6 +67,7 @@ def _add_yard_number(ax: Axes, line: int) -> None:
         color=LINE_COLOR,
         horizontalalignment="center",
         rotation=180,
+        zorder=1,
     ).set_alpha(0.8)
 
 
@@ -227,6 +227,7 @@ def _draw_endzone(
         verticalalignment="center",
         rotation=rotation,
         path_effects=[path_effects.withStroke(linewidth=2, foreground=secondary_color)],
+        zorder=1,
     ).set_alpha(0.5)
 
 
