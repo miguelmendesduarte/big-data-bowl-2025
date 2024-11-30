@@ -67,3 +67,31 @@ def convert_plays_left_to_right(tracking_data: pd.DataFrame) -> pd.DataFrame:
     logger.info(f"Flipped {len(right_to_left_plays)} right to left plays")
 
     return tracking_data
+
+
+def clean_tracking_data(
+    plays_data: pd.DataFrame, tracking_data: pd.DataFrame
+) -> pd.DataFrame:
+    """Clean the tracking data.
+
+    Applies the following cleaning steps:
+    - Remove plays not in the plays data
+    - Remove post-snap frames
+    - Convert plays left to right
+
+    Args:
+        plays_data (pd.DataFrame): Dataframe with plays.
+        tracking_data (pd.DataFrame): Dataframe with tracking data.
+
+    Returns:
+        pd.DataFrame: Cleaned tracking data.
+    """
+    logger.info("Cleaning tracking data...")
+    cleaned_tracking_data = (
+        tracking_data.pipe(filter_plays_in_tracking_data, plays_data)
+        .pipe(remove_post_snap_frames)
+        .pipe(convert_plays_left_to_right)
+    )
+    logger.info(f"Cleaned tracking data, {len(cleaned_tracking_data)} rows remain")
+
+    return cleaned_tracking_data
