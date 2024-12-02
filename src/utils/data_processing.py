@@ -48,3 +48,15 @@ def remove_unwanted_columns(
 
     logger.info(f"Successfully removed columns: {columns}")
     return dataframe.drop(columns, axis=1)
+
+
+def drop_duplicate_rows_tracking(tracking_df: pd.DataFrame) -> pd.DataFrame:
+    """Drop duplicate rows from tracking dataframe.
+
+    Args:
+        tracking_df (pd.DataFrame): Tracking dataframe.
+
+    Returns:
+        pd.DataFrame: Tracking dataframe with duplicate rows dropped.
+    """
+    return tracking_df.drop_duplicates(subset=["gameId", "playId", "frameId", "nflId"])
