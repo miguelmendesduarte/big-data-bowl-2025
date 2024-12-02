@@ -69,6 +69,24 @@ def convert_plays_left_to_right(tracking_data: pd.DataFrame) -> pd.DataFrame:
     return tracking_data
 
 
+def rotate_angles(tracking_data: pd.DataFrame) -> pd.DataFrame:
+    """Rotate direction and orientation angles.
+
+    Now, 0º points to the right, and increases counterclockwise.
+
+    Args:
+        tracking_data (pd.DataFrame): Tracking data.
+
+    Returns:
+        pd.DataFrame: Tracking data with rotated angles.
+    """
+    logger.info("Rotating direction and orientation angles")
+    tracking_data["o"] = -(tracking_data["o"] - 90) % 360
+    tracking_data["dir"] = -(tracking_data["dir"] - 90) % 360
+
+    return tracking_data
+
+
 def clean_tracking_data(
     plays_data: pd.DataFrame, tracking_data: pd.DataFrame
 ) -> pd.DataFrame:
@@ -91,6 +109,7 @@ def clean_tracking_data(
         tracking_data.pipe(filter_plays_in_tracking_data, plays_data)
         .pipe(remove_post_snap_frames)
         .pipe(convert_plays_left_to_right)
+        .pipe(rotate_angles)
     )
     logger.info(f"Cleaned tracking data, {len(cleaned_tracking_data)} rows remain")
 
