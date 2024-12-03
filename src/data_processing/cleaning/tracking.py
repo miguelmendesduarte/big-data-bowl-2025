@@ -2,6 +2,7 @@
 
 import logging
 
+import numpy as np
 import pandas as pd
 
 from ...visualization.field import FIELD_LENGTH, FIELD_WIDTH
@@ -153,6 +154,31 @@ def rotate_angles(tracking_data: pd.DataFrame) -> pd.DataFrame:
     logger.info("Rotating direction and orientation angles")
     tracking_data["o"] = -(tracking_data["o"] - 90) % 360
     tracking_data["dir"] = -(tracking_data["dir"] - 90) % 360
+
+    return tracking_data
+
+
+def assign_speed_sign(tracking_data: pd.DataFrame) -> pd.DataFrame:
+    """Modify 's' based on the player's direction relative to the LOS.
+
+    **ATTENTION**: Use after "rotate_angles"!
+
+    If the player is towards the line of scrimmage, the speed is positive.
+    If the player is away from the line of scrimmage, the speed is negative.
+
+    Args:
+        tracking_data (pd.DataFrame): Tracking data.
+
+    Returns:
+        pd.DataFrame: Tracking data with 's' modified.
+    """
+    towards_line_of_scrimmage = (tracking_data["dir"] > 90) & (
+        tracking_data["dir"] < 270
+    )
+
+    tracking_data["s"] = np.where(
+        towards_line_of_scrimmage, tracking_data["s"], -tracking_data["s"]
+    )
 
     return tracking_data
 
