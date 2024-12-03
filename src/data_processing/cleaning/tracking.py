@@ -45,6 +45,76 @@ def remove_post_snap_frames(tracking_data: pd.DataFrame) -> pd.DataFrame:
     return tracking_data[tracking_data.frameType != "AFTER_SNAP"]
 
 
+def remove_pre_line_set_frames(tracking_data: pd.DataFrame) -> pd.DataFrame:
+    """Remove pre-line set frames for each play and player.
+
+    This is used for inference. There is no need to compute the
+    probability of blitzing when teams are not set yet.
+
+    Args:
+        tracking_data (pd.DataFrame): Tracking data.
+
+    Returns:
+        pd.DataFrame: Tracking data without pre-line set frames.
+    """
+    line_set_frames = (
+        tracking_data[tracking_data.event == "line_set"]
+        .groupby(["gameId", "playId", "nflId"])["frameId"]
+        .min()
+        .reset_index(name="line_set_frameId")
+    )
+
+    tracking_data = tracking_data.merge(
+        line_set_frames, on=["gameId", "playId", "nflId"], how="left"
+    )
+    tracking_data_post_line_set = tracking_data[
+        tracking_data.frameId >= tracking_data.line_set_frameId
+    ]
+
+    tracking_data_post_line_set = tracking_data_post_line_set.drop(
+        ["line_set_frameId"], axis=1
+    )
+
+    return tracking_data_post_line_set
+
+
+def remove_frames_before_ball_snap(
+    tracking_data: pd.DataFrame, num_frames: int = 15
+) -> pd.DataFrame:
+    """Remove 'num_frames' before the ball snap for each play and player.
+
+    This is used for training. The model should not be trained on the
+    frames long before the ball snap.
+
+    Args:
+        tracking_data (pd.DataFrame): Tracking data.
+        num_frames (int, optional): Number of frames to remove before the ball snap.
+            Defaults to 15.
+
+    Returns:
+        pd.DataFrame: Tracking data without 'num_frames' before the ball snap.
+    """
+    ball_snap_frames = (
+        tracking_data[tracking_data["event"] == "ball_snap"]
+        .groupby(["gameId", "playId", "nflId"])["frameId"]
+        .min()
+        .reset_index(name="ball_snap_frameId")
+    )
+
+    tracking_data = tracking_data.merge(
+        ball_snap_frames, on=["gameId", "playId", "nflId"], how="left"
+    )
+    tracking_data_post_ball_snap = tracking_data[
+        tracking_data.frameId >= (tracking_data.ball_snap_frameId - num_frames)
+    ]
+
+    tracking_data_post_ball_snap = tracking_data_post_ball_snap.drop(
+        ["ball_snap_frameId"], axis=1
+    )
+
+    return tracking_data_post_ball_snap
+
+
 def convert_plays_left_to_right(tracking_data: pd.DataFrame) -> pd.DataFrame:
     """Flip tracking data where plays are right to left.
 
