@@ -37,6 +37,21 @@ def remove_non_passing_plays(plays_data: pd.DataFrame) -> pd.DataFrame:
     return cleaned_data
 
 
+def remove_QB_kneel_plays(plays_data: pd.DataFrame) -> pd.DataFrame:
+    """Remove plays where quarterback kneels.
+
+    Args:
+        plays_data (pd.DataFrame): Dataframe with plays.
+
+    Returns:
+        pd.DataFrame: Dataframe without plays where quarterback kneels.
+    """
+    cleaned_data = plays_data[plays_data.qbKneel != 1]
+    logger.info(f"Removed {len(plays_data) - len(cleaned_data)} qb kneel plays")
+
+    return cleaned_data
+
+
 def remove_wildcat_formation_plays(plays_data: pd.DataFrame) -> pd.DataFrame:
     """Remove wildcat offense formation plays.
 
@@ -101,6 +116,7 @@ def clean_plays_data(plays_data: pd.DataFrame) -> pd.DataFrame:
     """
     return (
         plays_data.pipe(remove_non_passing_plays)
+        .pipe(remove_QB_kneel_plays)
         .pipe(remove_plays_with_penalty)
         .pipe(remove_designed_rollouts_and_runs)
         .pipe(remove_wildcat_formation_plays)
