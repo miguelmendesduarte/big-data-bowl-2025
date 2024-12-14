@@ -206,7 +206,7 @@ def clean_tracking_data(
     """
     logger.info("Cleaning tracking data...")
     cleaned_tracking_data = (
-        tracking_data.pipe(filter_plays_in_tracking_data, plays_data)
+        plays_data.pipe(filter_plays_in_tracking_data, tracking_data)
         .pipe(remove_post_snap_frames)
         .pipe(remove_pre_line_set_frames)
         .pipe(convert_plays_left_to_right)
