@@ -12,7 +12,7 @@ BASE_DIR: Path = Path(__file__).parent.parent.parent.absolute()
 # Filenames
 GAMES_FILENAME = "games.csv"
 PLAYERS_FILENAME = "players.csv"
-PLAYER_PLAYS_FILENAME = "player_plays.csv"
+PLAYER_PLAYS_FILENAME = "player_play.csv"
 PLAYS_FILENAME = "plays.csv"
 TRACKING_FILENAME_TEMPLATE = "tracking_week_{week}.csv"
 LOGO_FILENAME_TEMPLATE = "{team}.png"

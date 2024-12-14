@@ -4,6 +4,8 @@ import logging
 
 import pandas as pd
 
+from ...utils.data_processing import remove_unwanted_columns
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,6 +35,21 @@ def remove_non_passing_plays(plays_data: pd.DataFrame) -> pd.DataFrame:
     """
     cleaned_data = plays_data[plays_data.isDropback]
     logger.info(f"Removed {len(plays_data) - len(cleaned_data)} non-passing plays")
+
+    return cleaned_data
+
+
+def remove_QB_kneel_plays(plays_data: pd.DataFrame) -> pd.DataFrame:
+    """Remove plays where quarterback kneels.
+
+    Args:
+        plays_data (pd.DataFrame): Dataframe with plays.
+
+    Returns:
+        pd.DataFrame: Dataframe without plays where quarterback kneels.
+    """
+    cleaned_data = plays_data[plays_data.qbKneel != 1]
+    logger.info(f"Removed {len(plays_data) - len(cleaned_data)} qb kneel plays")
 
     return cleaned_data
 
@@ -101,7 +118,52 @@ def clean_plays_data(plays_data: pd.DataFrame) -> pd.DataFrame:
     """
     return (
         plays_data.pipe(remove_non_passing_plays)
+        .pipe(remove_QB_kneel_plays)
         .pipe(remove_plays_with_penalty)
         .pipe(remove_designed_rollouts_and_runs)
         .pipe(remove_wildcat_formation_plays)
+        .pipe(
+            remove_unwanted_columns,
+            [
+                "playDescription",
+                "yardlineSide",
+                "yardlineNumber",
+                "playNullifiedByPenalty",
+                "preSnapHomeTeamWinProbability",
+                "preSnapVisitorTeamWinProbability",
+                "expectedPoints",
+                "offenseFormation",
+                "receiverAlignment",
+                "playClockAtSnap",
+                "passResult",
+                "passLength",
+                "targetX",
+                "targetY",
+                "playAction",
+                "dropbackType",
+                "dropbackDistance",
+                "passLocationType",
+                "timeToThrow",
+                "timeInTackleBox",
+                "timeToSack",
+                "passTippedAtLine",
+                "unblockedPressure",
+                "qbSpike",
+                "qbKneel",
+                "qbSneak",
+                "rushLocationType",
+                "penaltyYards",
+                "prePenaltyYardsGained",
+                "yardsGained",
+                "homeTeamWinProbabilityAdded",
+                "visitorTeamWinProbilityAdded",
+                "expectedPointsAdded",
+                "isDropback",
+                "pff_runConceptPrimary",
+                "pff_runConceptSecondary",
+                "pff_runPassOption",
+                "pff_passCoverage",
+                "pff_manZone",
+            ],
+        )
     )

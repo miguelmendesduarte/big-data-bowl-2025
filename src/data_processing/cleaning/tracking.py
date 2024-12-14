@@ -2,6 +2,7 @@
 
 import logging
 
+import numpy as np
 import pandas as pd
 
 from ...visualization.field import FIELD_LENGTH, FIELD_WIDTH
@@ -45,6 +46,77 @@ def remove_post_snap_frames(tracking_data: pd.DataFrame) -> pd.DataFrame:
     return tracking_data[tracking_data.frameType != "AFTER_SNAP"]
 
 
+def remove_pre_line_set_frames(tracking_data: pd.DataFrame) -> pd.DataFrame:
+    """Remove pre-line set frames for each play and player.
+
+    This is used for inference. There is no need to compute the
+    probability of blitzing when teams are not set yet.
+
+    Args:
+        tracking_data (pd.DataFrame): Tracking data.
+
+    Returns:
+        pd.DataFrame: Tracking data without pre-line set frames.
+    """
+    line_set_frames = (
+        tracking_data[tracking_data.event == "line_set"]
+        .groupby(["gameId", "playId", "nflId"])["frameId"]
+        .min()
+        .reset_index(name="line_set_frameId")
+    )
+
+    tracking_data = tracking_data.merge(
+        line_set_frames, on=["gameId", "playId", "nflId"], how="left"
+    )
+    tracking_data_post_line_set = tracking_data[
+        tracking_data.frameId >= tracking_data.line_set_frameId
+    ]
+
+    tracking_data_post_line_set = tracking_data_post_line_set.drop(
+        ["line_set_frameId"], axis=1
+    )
+
+    return tracking_data_post_line_set
+
+
+def remove_frames_before_ball_snap(
+    tracking_data: pd.DataFrame, num_frames: int = 15
+) -> pd.DataFrame:
+    """Remove 'num_frames' before the ball snap for each play and player.
+
+    ATTENTION:
+    This is used for training. The model should not be trained on the
+    frames long before the ball snap.
+
+    Args:
+        tracking_data (pd.DataFrame): Tracking data.
+        num_frames (int, optional): Number of frames to remove before the ball snap.
+            Defaults to 15.
+
+    Returns:
+        pd.DataFrame: Tracking data without 'num_frames' before the ball snap.
+    """
+    ball_snap_frames = (
+        tracking_data[tracking_data["event"] == "ball_snap"]
+        .groupby(["gameId", "playId", "nflId"])["frameId"]
+        .min()
+        .reset_index(name="ball_snap_frameId")
+    )
+
+    tracking_data = tracking_data.merge(
+        ball_snap_frames, on=["gameId", "playId", "nflId"], how="left"
+    )
+    tracking_data_post_ball_snap = tracking_data[
+        tracking_data.frameId >= (tracking_data.ball_snap_frameId - num_frames)
+    ]
+
+    tracking_data_post_ball_snap = tracking_data_post_ball_snap.drop(
+        ["ball_snap_frameId"], axis=1
+    )
+
+    return tracking_data_post_ball_snap
+
+
 def convert_plays_left_to_right(tracking_data: pd.DataFrame) -> pd.DataFrame:
     """Flip tracking data where plays are right to left.
 
@@ -67,3 +139,80 @@ def convert_plays_left_to_right(tracking_data: pd.DataFrame) -> pd.DataFrame:
     logger.info(f"Flipped {len(right_to_left_plays)} right to left plays")
 
     return tracking_data
+
+
+def rotate_angles(tracking_data: pd.DataFrame) -> pd.DataFrame:
+    """Rotate direction and orientation angles.
+
+    Now, 0º points to the right, and increases counterclockwise.
+
+    Args:
+        tracking_data (pd.DataFrame): Tracking data.
+
+    Returns:
+        pd.DataFrame: Tracking data with rotated angles.
+    """
+    logger.info("Rotating direction and orientation angles")
+    tracking_data["o"] = -(tracking_data["o"] - 90) % 360
+    tracking_data["dir"] = -(tracking_data["dir"] - 90) % 360
+
+    return tracking_data
+
+
+def assign_speed_sign(tracking_data: pd.DataFrame) -> pd.DataFrame:
+    """Modify 's' based on the player's direction relative to the LOS.
+
+    **ATTENTION**: Use after "rotate_angles"!
+
+    If the player is towards the line of scrimmage, the speed is positive.
+    If the player is away from the line of scrimmage, the speed is negative.
+
+    Args:
+        tracking_data (pd.DataFrame): Tracking data.
+
+    Returns:
+        pd.DataFrame: Tracking data with 's' modified.
+    """
+    towards_line_of_scrimmage = (tracking_data["dir"] > 90) & (
+        tracking_data["dir"] < 270
+    )
+
+    tracking_data["s"] = np.where(
+        towards_line_of_scrimmage, tracking_data["s"], -tracking_data["s"]
+    )
+
+    return tracking_data
+
+
+def clean_tracking_data(
+    plays_data: pd.DataFrame, tracking_data: pd.DataFrame
+) -> pd.DataFrame:
+    """Clean the tracking data.
+
+    Applies the following cleaning steps:
+    - Remove plays not in the plays data
+    - Remove post-snap frames
+    - Convert plays left to right
+    - Rotate angles
+    - Assign speed sign
+    - Remove frames before line set
+
+    Args:
+        plays_data (pd.DataFrame): Dataframe with plays.
+        tracking_data (pd.DataFrame): Dataframe with tracking data.
+
+    Returns:
+        pd.DataFrame: Cleaned tracking data.
+    """
+    logger.info("Cleaning tracking data...")
+    cleaned_tracking_data = (
+        plays_data.pipe(filter_plays_in_tracking_data, tracking_data)
+        .pipe(remove_post_snap_frames)
+        .pipe(remove_pre_line_set_frames)
+        .pipe(convert_plays_left_to_right)
+        .pipe(rotate_angles)
+        .pipe(assign_speed_sign)
+    )
+    logger.info(f"Cleaned tracking data, {len(cleaned_tracking_data)} rows remain")
+
+    return cleaned_tracking_data
