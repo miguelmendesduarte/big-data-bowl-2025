@@ -220,7 +220,7 @@ def get_distance_to_closest_opponent(tracking_df: pd.DataFrame) -> pd.DataFrame:
     return tracking_df
 
 
-def _compute_closest_opponent_position(tracking_df: pd.DataFrame) -> pd.Series[float]:
+def _compute_closest_opponent_position(tracking_df: pd.DataFrame) -> pd.Series[str]:
     """Compute the closest opponent position for each player in the same frame.
 
     Args:
@@ -249,7 +249,7 @@ def _compute_closest_opponent_position(tracking_df: pd.DataFrame) -> pd.Series[f
     closest_indices = pairwise_distances.argmin(axis=1)
     closest_positions = positions.iloc[closest_indices]
 
-    return pd.Series(closest_positions.values, dtype=float, index=tracking_df.index)
+    return pd.Series(closest_positions.values, index=tracking_df.index, dtype=str)
 
 
 def get_position_of_closest_opponent(tracking_df: pd.DataFrame) -> pd.DataFrame:
@@ -786,34 +786,45 @@ def add_features(
     Returns:
         pd.DataFrame: Dataframe with all features added.
     """
-    return (
-        tracking_df.pipe(
-            lambda df: merge_player_position_with_tracking_data(df, players_df)
-        )
-        .pipe(lambda df: add_pass_rusher_label_to_tracking_data(df, player_plays_df))
-        .pipe(get_distance_to_qb)
-        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
-        .pipe(get_orientation_difference_to_qb)
-        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
-        .pipe(get_direction_difference_to_qb)
-        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
-        .pipe(lambda df: get_distance_to_line_of_scrimmage(df, plays_df))
-        .pipe(lambda df: get_down(df, plays_df))
-        .pipe(lambda df: get_yards_to_go(df, plays_df))
-        .pipe(lambda df: get_yards_to_endzone(df, plays_df))
-        .pipe(lambda df: get_score_differential(df, plays_df, games_df))
-        .pipe(lambda df: get_time_remaining_in_seconds(df, plays_df))
-        .pipe(lambda df: get_defenders_near_LOS(df, plays_df))
-        .pipe(get_TEs_on_right)
-        .pipe(get_TEs_on_left)
-        .pipe(get_FBs_on_right)
-        .pipe(get_FBs_on_left)
-        .pipe(get_RBs_on_right)
-        .pipe(get_RBs_on_left)
-        .pipe(get_distance_to_closest_opponent)
-        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
-        .pipe(get_position_of_closest_opponent)
-        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
-        .pipe(get_orientation_difference_to_closest_opponent)
-        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
+    # TODO: This function could be A LOT cleaner :)
+    tracking_df = merge_player_position_with_tracking_data(
+        player_df=players_df, tracking_df=tracking_df
     )
+    tracking_df = add_pass_rusher_label_to_tracking_data(
+        tracking_df=tracking_df, player_play_df=player_plays_df
+    )
+    tracking_df = get_distance_to_qb(tracking_df)
+
+    tracking_df = drop_duplicate_rows_tracking(tracking_df)
+    tracking_df = get_orientation_difference_to_qb(tracking_df)
+
+    tracking_df = drop_duplicate_rows_tracking(tracking_df)
+
+    tracking_df = get_direction_difference_to_qb(tracking_df)
+
+    tracking_df = drop_duplicate_rows_tracking(tracking_df)
+
+    tracking_df = get_distance_to_line_of_scrimmage(tracking_df, plays_df)
+    tracking_df = get_down(tracking_df, plays_df)
+    tracking_df = get_yards_to_go(tracking_df, plays_df)
+    tracking_df = get_yards_to_endzone(tracking_df, plays_df)
+    tracking_df = get_score_differential(tracking_df, plays_df, games_df)
+    tracking_df = get_time_remaining_in_seconds(tracking_df, plays_df)
+
+    tracking_df = get_defenders_near_LOS(tracking_df, plays_df)
+
+    tracking_df = get_TEs_on_right(tracking_df)
+    tracking_df = get_TEs_on_left(tracking_df)
+    tracking_df = get_FBs_on_right(tracking_df)
+    tracking_df = get_FBs_on_left(tracking_df)
+    tracking_df = get_RBs_on_right(tracking_df)
+    tracking_df = get_RBs_on_left(tracking_df)
+
+    tracking_df = get_distance_to_closest_opponent(tracking_df)
+    tracking_df = drop_duplicate_rows_tracking(tracking_df)
+    tracking_df = get_position_of_closest_opponent(tracking_df)
+    tracking_df = drop_duplicate_rows_tracking(tracking_df)
+    tracking_df = get_orientation_difference_to_closest_opponent(tracking_df)
+    tracking_df = drop_duplicate_rows_tracking(tracking_df)
+
+    return tracking_df
