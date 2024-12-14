@@ -9,6 +9,8 @@ from enum import StrEnum
 import numpy as np
 import pandas as pd
 
+from ...utils.data_processing import drop_duplicate_rows_tracking
+
 
 def merge_player_position_with_tracking_data(
     player_df: pd.DataFrame, tracking_df: pd.DataFrame, on_column: str = "nflId"
@@ -380,9 +382,6 @@ def get_orientation_difference_to_closest_opponent(
 
     tracking_df["closest_opponent_x"] = closest_coordinates["closest_opponent_x"]
     tracking_df["closest_opponent_y"] = closest_coordinates["closest_opponent_y"]
-
-    # ____
-
     tracking_df["dx"] = tracking_df["x"] - tracking_df["closest_opponent_x"]
     tracking_df["dy"] = tracking_df["y"] - tracking_df["closest_opponent_y"]
 
@@ -767,3 +766,54 @@ def get_defenders_near_LOS(
     )
 
     return merged_df
+
+
+def add_features(
+    tracking_df: pd.DataFrame,
+    plays_df: pd.DataFrame,
+    players_df: pd.DataFrame,
+    player_plays_df: pd.DataFrame,
+    games_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Add all features to tracking data.
+
+    Args:
+        tracking_df (pd.DataFrame): Dataframe with tracking data.
+        plays_df (pd.DataFrame): Dataframe with play data.
+        player_plays_df (pd.DataFrame): Dataframe with player play data.
+        games_df (pd.DataFrame): Dataframe with game data.
+
+    Returns:
+        pd.DataFrame: Dataframe with all features added.
+    """
+    return (
+        tracking_df.pipe(
+            lambda df: merge_player_position_with_tracking_data(df, players_df)
+        )
+        .pipe(lambda df: add_pass_rusher_label_to_tracking_data(df, player_plays_df))
+        .pipe(get_distance_to_qb)
+        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
+        .pipe(get_orientation_difference_to_qb)
+        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
+        .pipe(get_direction_difference_to_qb)
+        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
+        .pipe(lambda df: get_distance_to_line_of_scrimmage(df, plays_df))
+        .pipe(lambda df: get_down(df, plays_df))
+        .pipe(lambda df: get_yards_to_go(df, plays_df))
+        .pipe(lambda df: get_yards_to_endzone(df, plays_df))
+        .pipe(lambda df: get_score_differential(df, plays_df, games_df))
+        .pipe(lambda df: get_time_remaining_in_seconds(df, plays_df))
+        .pipe(lambda df: get_defenders_near_LOS(df, plays_df))
+        .pipe(get_TEs_on_right)
+        .pipe(get_TEs_on_left)
+        .pipe(get_FBs_on_right)
+        .pipe(get_FBs_on_left)
+        .pipe(get_RBs_on_right)
+        .pipe(get_RBs_on_left)
+        .pipe(get_distance_to_closest_opponent)
+        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
+        .pipe(get_position_of_closest_opponent)
+        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
+        .pipe(get_orientation_difference_to_closest_opponent)
+        .pipe(drop_duplicate_rows_tracking)  # drop duplicate rows
+    )
