@@ -84,6 +84,7 @@ def remove_frames_before_ball_snap(
 ) -> pd.DataFrame:
     """Remove 'num_frames' before the ball snap for each play and player.
 
+    ATTENTION:
     This is used for training. The model should not be trained on the
     frames long before the ball snap.
 
@@ -192,6 +193,9 @@ def clean_tracking_data(
     - Remove plays not in the plays data
     - Remove post-snap frames
     - Convert plays left to right
+    - Rotate angles
+    - Assign speed sign
+    - Remove frames before line set
 
     Args:
         plays_data (pd.DataFrame): Dataframe with plays.
@@ -204,8 +208,10 @@ def clean_tracking_data(
     cleaned_tracking_data = (
         tracking_data.pipe(filter_plays_in_tracking_data, plays_data)
         .pipe(remove_post_snap_frames)
+        .pipe(remove_pre_line_set_frames)
         .pipe(convert_plays_left_to_right)
         .pipe(rotate_angles)
+        .pipe(assign_speed_sign)
     )
     logger.info(f"Cleaned tracking data, {len(cleaned_tracking_data)} rows remain")
 
