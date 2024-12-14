@@ -321,6 +321,84 @@ def get_orientation_of_closest_opponent(tracking_df: pd.DataFrame) -> pd.DataFra
     return tracking_df
 
 
+def _compute_closest_opponent_coordinates(tracking_df: pd.DataFrame) -> pd.DataFrame:
+    """Compute the coordinates (x, y) of the closest opponent for each player.
+
+    Args:
+        tracking_df (pd.DataFrame): Dataframe with tracking data.
+
+    Returns:
+        pd.DataFrame: Dataframe with closest opponent coordinates.
+    """
+    x_coords = tracking_df["x"].to_numpy()
+    y_coords = tracking_df["y"].to_numpy()
+    teams = tracking_df["club"].to_numpy()
+
+    player_positions = np.stack((x_coords, y_coords), axis=1)
+    pairwise_distances = np.linalg.norm(
+        player_positions[:, np.newaxis, :] - player_positions[np.newaxis, :, :], axis=2
+    )
+
+    np.fill_diagonal(pairwise_distances, np.inf)  # Avoid selecting self as closest
+
+    # Avoid teammates from being selected as the closest opponent
+    for i, team in enumerate(teams):
+        pairwise_distances[i, teams == team] = np.inf
+
+    closest_indices = pairwise_distances.argmin(axis=1)
+    closest_x = x_coords[closest_indices]
+    closest_y = y_coords[closest_indices]
+
+    closest_player_coordinates = pd.DataFrame(
+        {"closest_opponent_x": closest_x, "closest_opponent_y": closest_y},
+        index=tracking_df.index,
+    )
+
+    return closest_player_coordinates
+
+
+def get_orientation_difference_to_closest_opponent(
+    tracking_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Get orientation difference between each player and the closest opponent.
+
+    The angle to the closest opponent is calculated using 'arctan2' function.
+
+    Args:
+        tracking_df (pd.DataFrame): Dataframe with tracking data.
+
+    Returns:
+        pd.DataFrame: Dataframe with orientation to closest opponent added.
+    """
+    closest_coordinates = (
+        tracking_df.groupby(["gameId", "playId", "frameId"])
+        .apply(_compute_closest_opponent_coordinates, include_groups=False)
+        .reset_index(drop=True, level=[0, 1, 2])
+    )
+
+    tracking_df = tracking_df.copy()
+
+    tracking_df["closest_opponent_x"] = closest_coordinates["closest_opponent_x"]
+    tracking_df["closest_opponent_y"] = closest_coordinates["closest_opponent_y"]
+
+    # ____
+
+    tracking_df["dx"] = tracking_df["x"] - tracking_df["closest_opponent_x"]
+    tracking_df["dy"] = tracking_df["y"] - tracking_df["closest_opponent_y"]
+
+    angle_rad = np.arctan2(tracking_df["dy"], tracking_df["dx"])
+    angle_deg = np.degrees(angle_rad)
+    angle_deg = angle_deg + 180  # Defensive players are on the right
+
+    tracking_df["orientation_to_closest_opponent"] = tracking_df["o"] - angle_deg
+
+    tracking_df = tracking_df.drop(
+        columns=["closest_opponent_x", "closest_opponent_y", "dx", "dy"]
+    )
+
+    return tracking_df
+
+
 def get_down(tracking_df: pd.DataFrame, plays_df: pd.DataFrame) -> pd.DataFrame:
     """Get down for each play in tracking data.
 
