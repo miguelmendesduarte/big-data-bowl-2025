@@ -24,6 +24,7 @@ pytest = "^8.3.3"
 pytest-cov = "^5.0.0"
 pydocstyle = "^6.3.0"
 pandas-stubs = "^2.2.3.241009"
+types-tqdm = "^4.67.0.20241119"
 
 [tool.poetry.group.notebooks.dependencies]
 ipykernel = "^6.29.5"
