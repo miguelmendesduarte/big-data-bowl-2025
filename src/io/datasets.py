@@ -42,4 +42,4 @@ class CSVWriter(BaseWriter):
             data (pd.DataFrame): Data to write.
         """
         logger.info(f"Writing data to {path}")
-        data.to_csv(path)
+        data.to_csv(path, index=False)
