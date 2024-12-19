@@ -68,6 +68,11 @@ def evaluate_model(
             index=["Actual_0", "Actual_1"],
             columns=["Predicted_0", "Predicted_1"],
         ),
+        "normalized_confusion_matrix": pd.DataFrame(
+            confusion_matrix(y_test, y_pred, normalize="true"),
+            index=["Actual_0", "Actual_1"],
+            columns=["Predicted_0", "Predicted_1"],
+        ),
     }
 
     return metrics
