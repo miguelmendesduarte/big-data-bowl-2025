@@ -43,7 +43,7 @@ class Model(Protocol):
 
 def evaluate_model(
     model: Model, test_data: tuple[pd.DataFrame, pd.Series[int]]
-) -> dict[str, float | pd.DataFrame]:
+) -> dict[str, float]:
     """Evaluate a machine learning model on test data.
 
     Args:
@@ -58,21 +58,18 @@ def evaluate_model(
 
     y_pred = model.predict(X_test)
 
+    cm = confusion_matrix(y_test, y_pred)
+    tn, fp, fn, tp = cm.ravel()
+
     metrics = {
         "accuracy": accuracy_score(y_test, y_pred),
         "precision": precision_score(y_test, y_pred, average="binary", zero_division=0),
         "recall": recall_score(y_test, y_pred, average="binary", zero_division=0),
         "f1_score": f1_score(y_test, y_pred, average="binary"),
-        "confusion_matrix": pd.DataFrame(
-            confusion_matrix(y_test, y_pred),
-            index=["Actual_0", "Actual_1"],
-            columns=["Predicted_0", "Predicted_1"],
-        ),
-        "normalized_confusion_matrix": pd.DataFrame(
-            confusion_matrix(y_test, y_pred, normalize="true"),
-            index=["Actual_0", "Actual_1"],
-            columns=["Predicted_0", "Predicted_1"],
-        ),
+        "true_negatives": tn,
+        "false_positives": fp,
+        "false_negatives": fn,
+        "true_positives": tp,
     }
 
     return metrics
