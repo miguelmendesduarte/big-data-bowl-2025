@@ -9,6 +9,7 @@ from sklearn.metrics import (  # type: ignore[import-untyped]
     accuracy_score,
     confusion_matrix,
     f1_score,
+    log_loss,
     precision_score,
     recall_score,
 )
@@ -40,6 +41,17 @@ class Model(Protocol):
         """
         ...
 
+    def predict_proba(self, X: pd.DataFrame) -> pd.Series[float]:
+        """Predict probabilities for given features.
+
+        Args:
+            X (pd.DataFrame): Features.
+
+        Returns:
+            pd.Series[float]: Predicted probabilities.
+        """
+        ...
+
 
 def evaluate_model(
     model: Model, test_data: tuple[pd.DataFrame, pd.Series[int]]
@@ -57,6 +69,7 @@ def evaluate_model(
     X_test, y_test = test_data
 
     y_pred = model.predict(X_test)
+    y_pred_prob = model.predict_proba(X_test)[:, 1]
 
     cm = confusion_matrix(y_test, y_pred)
     tn, fp, fn, tp = cm.ravel()
@@ -70,6 +83,7 @@ def evaluate_model(
         "false_positives": fp,
         "false_negatives": fn,
         "true_positives": tp,
+        "log_loss": log_loss(y_test, y_pred_prob),
     }
 
     return metrics
