@@ -163,6 +163,7 @@ cython_debug/
 
 # MLflow Experiments
 mlruns/
+mlartifacts/
 
 # Other
 data/*/*.csv
