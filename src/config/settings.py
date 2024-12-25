@@ -16,6 +16,7 @@ PLAYER_PLAYS_FILENAME = "player_play.csv"
 PLAYS_FILENAME = "plays.csv"
 TRACKING_FILENAME_TEMPLATE = "tracking_week_{week}.csv"
 LOGO_FILENAME_TEMPLATE = "{team}.png"
+INFERENCE_FILENAME = "inference.csv"
 
 
 class LogLevel(StrEnum):
@@ -37,6 +38,7 @@ class Settings(BaseSettings):
     PROCESSED_DIR: Path = DATA_DIR / "processed"
     ASSETS_DIR: Path = BASE_DIR / "assets"
     LOGOS_DIR: Path = ASSETS_DIR / "logos"
+    INFERENCE_DIR: Path = DATA_DIR / "inference"
 
     # Files
     GAMES_FILE: Path = Field(
@@ -56,6 +58,10 @@ class Settings(BaseSettings):
     )
     LOGO_FILES: str = Field(
         default=LOGO_FILENAME_TEMPLATE, description="Template for team logo."
+    )
+    INFERENCE_FILE: Path = Field(
+        default=Path(INFERENCE_DIR / INFERENCE_FILENAME),
+        description="Path to inference file.",
     )
 
     # Logging
