@@ -63,6 +63,16 @@ class Settings(BaseSettings):
         default=Path(INFERENCE_DIR / INFERENCE_FILENAME),
         description="Path to inference file.",
     )
+    RESULTS_FILE: Path = Field(
+        default=Path(DATA_DIR / "results.csv"), description="Path to results file."
+    )
+
+    # Model
+    EXPERIMENT_ID: str = "348861169371468741"
+    RUN_ID: str = "acc646bf84224e96a07174a6f38c640b"
+    MODEL_PATH: Path = Path(
+        f"{BASE_DIR}/mlartifacts/{EXPERIMENT_ID}/{RUN_ID}/artifacts/model"
+    )
 
     # Logging
     LOG_LEVEL: LogLevel = Field(default=LogLevel.INFO, description="Log level to use.")
