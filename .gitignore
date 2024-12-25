@@ -167,4 +167,5 @@ mlartifacts/
 
 # Other
 data/*/*.csv
+data/results.csv
 src/test.py
