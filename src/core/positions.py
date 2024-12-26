@@ -61,3 +61,24 @@ def convert_positions_to_int(
             tracking_data[column].map(position_mapping).astype("int8")
         )
     return tracking_data
+
+
+def convert_ints_to_positions(
+    tracking_data: pd.DataFrame,
+    columns: list[str],
+) -> pd.DataFrame:
+    """Convert integer positions to string positions.
+
+    Args:
+        tracking_data (pd.DataFrame): Dataframe with tracking data.
+        columns (list[str]): Columns with integer positions.
+
+    Returns:
+        pd.DataFrame: Dataframe with string positions.
+    """
+    reverse_position_mapping = {v: k for k, v in position_mapping.items()}
+
+    for column in columns:
+        tracking_data[column] = tracking_data[column].map(reverse_position_mapping)
+
+    return tracking_data
