@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     ASSETS_DIR: Path = BASE_DIR / "assets"
     LOGOS_DIR: Path = ASSETS_DIR / "logos"
     INFERENCE_DIR: Path = DATA_DIR / "inference"
+    METRICS_DIR: Path = DATA_DIR / "metric"
 
     # Files
     GAMES_FILE: Path = Field(
@@ -65,6 +66,14 @@ class Settings(BaseSettings):
     )
     BLITZ_PROBABILITY_RESULTS_FILE: Path = Field(
         default=Path(INFERENCE_DIR / "blitz_probability_results.csv"),
+        description="Path to results file.",
+    )
+    FRAME_DISGUISE_RESULTS_FILE: Path = Field(
+        default=Path(METRICS_DIR / "frame_disguise_results.csv"),
+        description="Path to results file.",
+    )
+    PLAY_DISGUISE_RESULTS_FILE: Path = Field(
+        default=Path(METRICS_DIR / "play_disguise_results.csv"),
         description="Path to results file.",
     )
 
