@@ -47,7 +47,7 @@ def main() -> None:
     probabilities = predict_blitz_probability(features)
     inference_data["blitz_probability"] = probabilities
 
-    writer.write(global_settings.RESULTS_FILE, inference_data)
+    writer.write(global_settings.BLITZ_PROBABILITY_RESULTS_FILE, inference_data)
 
 
 if __name__ == "__main__":
