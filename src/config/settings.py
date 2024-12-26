@@ -63,8 +63,9 @@ class Settings(BaseSettings):
         default=Path(INFERENCE_DIR / INFERENCE_FILENAME),
         description="Path to inference file.",
     )
-    RESULTS_FILE: Path = Field(
-        default=Path(DATA_DIR / "results.csv"), description="Path to results file."
+    BLITZ_PROBABILITY_RESULTS_FILE: Path = Field(
+        default=Path(INFERENCE_DIR / "blitz_probability_results.csv"),
+        description="Path to results file.",
     )
 
     # Model
