@@ -169,4 +169,5 @@ mlartifacts/
 data/*/*.csv
 data/results.csv
 !data/metric/play_disguise_results.csv
+!data/metric/weighted_play_disguise_results.csv
 src/test.py
