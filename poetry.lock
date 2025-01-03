@@ -520,17 +520,6 @@ files = [
 ]
 
 [[package]]
-name = "chromium"
-version = "0.0.0"
-description = "A hobby project"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "chromium-0.0.0-py3-none-any.whl", hash = "sha256:a789163f8c17a5007259cc58fd77eff13ca4b7e2cd74ea79ba7bdef2daa2d853"},
-    {file = "chromium-0.0.0.tar.gz", hash = "sha256:dfed04f56ab56721c1e05c77a97a79ad1b88be44c222eb1f7ffbd6fff54e1e72"},
-]
-
-[[package]]
 name = "click"
 version = "8.1.7"
 description = "Composable command line interface toolkit"
@@ -2919,6 +2908,26 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=8.3.2)", "pytest-
 type = ["mypy (>=1.11.2)"]
 
 [[package]]
+name = "plottable"
+version = "0.1.5"
+description = "Beautifully customized tables with matplotlib"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "plottable-0.1.5-py3-none-any.whl", hash = "sha256:5c5d1128d90065fc940e5c8445b2603d253909745bb0cee0c9828651b812441c"},
+    {file = "plottable-0.1.5.tar.gz", hash = "sha256:235d762a31c82129dc5bf74205c103a14b1e4393d0f921cc0231be5de884041d"},
+]
+
+[package.dependencies]
+matplotlib = "*"
+numpy = "*"
+pandas = "*"
+Pillow = "*"
+
+[package.extras]
+development = ["black", "pytest"]
+
+[[package]]
 name = "pluggy"
 version = "1.5.0"
 description = "plugin and hook calling mechanisms for python"
@@ -4627,4 +4636,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "74c227094a32904b0a0ba9f0865fa8293bf2ad4a8a834f7afaa3636cb01d85c7"
+content-hash = "55d6a7ebb075676565a77e7f69925e6174dbe69287c89af188a24a2761c5fa59"
