@@ -76,6 +76,10 @@ class Settings(BaseSettings):
         default=Path(METRICS_DIR / "play_disguise_results.csv"),
         description="Path to results file.",
     )
+    WEIGHTED_PLAY_DISGUISE_RESULTS_FILE: Path = Field(
+        default=Path(METRICS_DIR / "weighted_play_disguise_results.csv"),
+        description="Path to results file.",
+    )
 
     # Model
     EXPERIMENT_ID: str = "348861169371468741"
