@@ -2,6 +2,8 @@
 
 This repository supports my submission to the **NFL Big Data Bowl 2025** submission, [Disguised Intentions](https://www.kaggle.com/code/miguelmd123/disguised-intentions). The project quantifies how effectively defensive backs (DBs) disguise their intentions pre-snap and how this impacts defensive outcomes.
 
+**Update**: _Disguised Intentions: How DBs Keep Offenses Guessing_ has received an [Honorable Mention](https://operations.nfl.com/gameday/analytics/big-data-bowl/2025-big-data-bowl-finalists/) in the **NFL Big Data Bowl 2025**! 🎉
+
 ## Prerequisites
 
 To set up the project locally,
